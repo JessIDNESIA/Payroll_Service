@@ -6,12 +6,6 @@
         <form action="{{ route('pengajuan.store') }}" method="POST">
             @csrf
 
-            <!-- Nama Karyawan -->
-            <div class="mb-4">
-                <label for="nama" class="block text-sm font-medium text-gray-700">Nama Karyawan</label>
-                <input type="text" name="nama" id="nama" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
-            </div>
-
             <!-- Judul Pengajuan -->
             <div class="mb-4">
                 <label for="judul" class="block text-sm font-medium text-gray-700">Judul Pengajuan</label>
