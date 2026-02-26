@@ -12,18 +12,30 @@ class GajiController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+public function index()
 {
     if (auth()->user()->hasRole('admin')) {
-        // Tampilan Admin
-        $gajis = Gaji::with('user')->latest()->get();
+        // Tampilan Admin → semua gaji
+        $gajis = Gaji::with('user')->latest()->paginate(10);
     } else {
-        // Tampilan User
-        $gajis = Gaji::with('user')->where('user_id', auth()->id())->latest()->get();
+        // Tampilan User → hanya gaji milik user login
+        $gajis = Gaji::with('user')
+            ->where('user_id', auth()->id())
+            ->latest()
+            ->paginate(10);
     }
 
-    return view('admin.gaji.index', compact('gajis'));
+    // Untuk statistik tetap akurat (karena paginate hanya ambil per halaman),
+    // kita bisa ambil data tambahan langsung dari database.
+    $stats = [
+        'total_gaji'    => Gaji::sum('total_gaji'),
+        'lunas'         => Gaji::where('status', 'Lunas')->count(),
+        'belum_dibayar' => Gaji::where('status', 'Belum Dibayar')->count(),
+    ];
+
+    return view('admin.gaji.index', compact('gajis', 'stats'));
 }
+
 
     /**
      * Show the form for creating a new resource.g

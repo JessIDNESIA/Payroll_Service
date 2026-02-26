@@ -1,128 +1,228 @@
-<x-layouts.app-layout>
-    <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-        <div class="bg-white shadow-sm rounded-lg p-6 mb-8">
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-                <h1 class="text-3xl font-semibold text-gray-900">Daftar Pengajuan</h1>
-                @if(auth()->user()->hasRole('user'))
-                <a href="{{ route('pengajuan.create') }}" 
-                   class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg shadow-sm transition-colors duration-200 flex items-center gap-2">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                    </svg>
-                    Tambah Pengajuan
-                </a>
-                @endif
-            </div>
+<x-app-layout>
+    <x-slot name="header">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="text-3xl font-black text-gray-900 tracking-tight">
+                {{ __('Daftar Pengajuan Karyawan') }}
+            </h2>
+        </div>
+    </x-slot>
 
-            <div class="overflow-x-auto rounded-lg border border-gray-200 shadow-sm">
-                <table class="w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50">
-                        <tr>
-                            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Nama Karyawan</th>
-                            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Judul</th>
-                            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Deskripsi</th>
-                            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Status</th>
-                            @role('admin')
-                            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Aksi</th>
-                            @endrole
-                        </tr>
-                    </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
-                        @foreach ($pengajuans as $pengajuan)
-                        <tr class="hover:bg-gray-50 transition-colors duration-200">
-                            <td class="px-6 py-4 max-w-[150px]">
-                                <div class="text-sm text-gray-900 truncate" title="{{ $pengajuan->user->name }}">
+    <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+        <!-- Card utama -->
+        <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 border border-orange-100">
+            <div class="p-8">
+                <!-- Header -->
+                <div class="flex justify-between items-center mb-8">
+                    <div class="flex items-center gap-3">
+                        <div class="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center">
+                            <i class="fas fa-clipboard-list text-orange-500 text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-2xl font-bold text-gray-900">Manajemen Pengajuan</h3>
+                            <p class="text-gray-600 font-medium">Kelola semua pengajuan dari karyawan</p>
+                        </div>
+                    </div>
+
+                    @if(Auth()->user()->hasRole('user'))
+                    <a href="{{ route('pengajuan.create') }}" 
+                       class="bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 rounded-lg shadow-md hover:shadow-lg transition transform hover:-translate-y-0.5 flex items-center gap-2 font-bold">
+                        <i class="fas fa-plus-circle"></i>
+                        Buat Pengajuan Baru
+                    </a>
+                    @endif
+                </div>
+
+                <!-- Tabel -->
+                <div class="overflow-x-auto rounded-lg border-2 border-gray-300 shadow-sm">
+                    <table class="w-full border-collapse">
+                        <thead class="bg-gradient-to-r from-orange-50 to-orange-100">
+                            <tr>
+                                <th class="px-6 py-4 text-left text-sm font-black text-gray-800 uppercase tracking-wide border-r-2 border-b-2 border-gray-300">
+                                    <i class="fas fa-user mr-2 text-orange-500"></i>Karyawan
+                                </th>
+                                <th class="px-6 py-4 text-left text-sm font-black text-gray-800 uppercase tracking-wide border-r-2 border-b-2 border-gray-300">Judul</th>
+                                <th class="px-6 py-4 text-left text-sm font-black text-gray-800 uppercase tracking-wide border-r-2 border-b-2 border-gray-300">Deskripsi</th>
+                                <th class="px-6 py-4 text-left text-sm font-black text-gray-800 uppercase tracking-wide border-r-2 border-b-2 border-gray-300">
+                                    <i class="fas fa-check-circle mr-2 text-orange-500"></i>Status
+                                </th>
+                                @if(Auth::user()->hasRole('admin'))
+                                <th class="px-6 py-4 text-left text-sm font-black text-gray-800 uppercase tracking-wide border-b-2 border-gray-300">
+                                    <i class="fas fa-cogs mr-2 text-orange-500"></i>Aksi
+                                </th>
+                                @endif
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white">
+                            @forelse($pengajuans as $pengajuan)
+                            <tr class="hover:bg-orange-50 transition-colors duration-200 border-b-2 border-gray-300">
+                                <!-- Karyawan -->
+                                <td class="px-6 py-4 text-sm font-bold text-gray-900 border-r-2 border-gray-300">
                                     {{ $pengajuan->user->name }}
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 max-w-[200px]">
-                                <div class="text-sm text-gray-900 truncate" title="{{ $pengajuan->judul }}">
-                                    {{ $pengajuan->judul }}
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 max-w-[300px]">
-                                <div class="text-sm text-gray-600 truncate" title="{{ $pengajuan->deskripsi }}">
+                                    <div class="text-xs text-gray-600 font-semibold">{{ $pengajuan->created_at->format('d M Y') }}</div>
+                                </td>
+
+                                <!-- Judul -->
+                                <td class="px-6 py-4 text-sm text-gray-800 font-semibold border-r-2 border-gray-300">{{ $pengajuan->judul }}</td>
+
+                                <!-- Deskripsi -->
+                                <td class="px-6 py-4 text-sm text-gray-700 font-medium max-w-[300px] truncate border-r-2 border-gray-300" title="{{ $pengajuan->deskripsi }}">
                                     {{ $pengajuan->deskripsi }}
-                                </div>
-                            </td>
-                            <td class="px-6 py-4">
-                                <div class="flex items-center gap-3">
-                                    <span class="px-3 py-1.5 rounded-full text-xs font-medium inline-flex items-center gap-1.5 {{
-                                        $pengajuan->status == 'menunggu' ? 'bg-amber-100 text-amber-800 border border-amber-200' :
-                                        ($pengajuan->status == 'diterima' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800')
+                                </td>
+
+                                <!-- Status -->
+                                <td class="px-6 py-4 border-r-2 border-gray-300">
+                                    <span class="px-4 py-2 rounded-full text-xs font-bold flex items-center gap-2 w-max {{
+                                        $pengajuan->status == 'diterima' 
+                                            ? 'bg-green-100 text-green-800 border-2 border-green-300' 
+                                            : ($pengajuan->status == 'ditolak'
+                                                ? 'bg-red-100 text-red-800 border-2 border-red-300'
+                                                : 'bg-yellow-100 text-yellow-800 border-2 border-yellow-300 animate-pulse')
                                     }}">
-                                        @if($pengajuan->status == 'menunggu')
-                                        <svg class="w-3.5 h-3.5 animate-pulse" fill="currentColor" viewBox="0 0 20 20">
-                                            <path d="M10 2a5 5 0 00-5 5v3a2 2 0 00-2 2v5a2 2 0 002 2h10a2 2 0 002-2v-5a2 2 0 00-2-2H7V7a3 3 0 015.905-.75 1 1 0 001.937-.5A5.002 5.002 0 0010 2z"/>
-                                        </svg>
-                                        @elseif($pengajuan->status == 'diterima')
-                                        <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
-                                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                                        </svg>
+                                        @if($pengajuan->status == 'diterima')
+                                            <i class="fas fa-check text-green-600"></i>
+                                        @elseif($pengajuan->status == 'ditolak')
+                                            <i class="fas fa-times text-red-600"></i>
                                         @else
-                                        <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
-                                            <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
-                                        </svg>
+                                            <i class="fas fa-clock text-yellow-600"></i>
                                         @endif
                                         {{ ucfirst($pengajuan->status) }}
                                     </span>
-                                    <a href="{{ route('pengajuan.show', $pengajuan->id) }}" 
-                                       class="text-blue-600 hover:text-blue-900 flex items-center gap-1 text-sm">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                                        </svg>
-                                        Detail
-                                    </a>
-                                </div>
-                            </td>
+                                </td>
 
-                            @role('admin')
-                            <td class="px-6 py-4">
-                                <div class="flex items-center gap-2">
-                                    <form action="{{ route('pengajuan.setujui', $pengajuan->id) }}" method="POST">
-                                        @csrf
-                                        @method('PUT')
-                                        <button 
-                                            class="p-2 rounded-lg hover:bg-green-100 text-green-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
-                                            title="Setujui"
-                                            @if ($pengajuan->status == 'disetujui') disabled @endif>
-                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                                            </svg>
-                                        </button>
-                                    </form>
-                                    <form action="{{ route('pengajuan.tolak', $pengajuan->id) }}" method="POST">
-                                        @csrf
-                                        @method('PUT')
-                                        <button 
-                                            class="p-2 rounded-lg hover:bg-red-100 text-red-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
-                                            title="Tolak"
-                                            @if ($pengajuan->status == 'ditolak') disabled @endif>
-                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                                            </svg>
-                                        </button>
-                                    </form>
-                                    <form action="{{ route('pengajuan.destroy', $pengajuan->id) }}" method="POST" onsubmit="return confirm('Hapus pengajuan ini?')">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button 
-                                            class="p-2 rounded-lg hover:bg-gray-100 text-gray-600 transition-colors duration-200"
-                                            title="Hapus">
-                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                                            </svg>
-                                        </button>
-                                    </form>
-                                </div>
-                            </td>
-                            @endrole
-                        </tr>
-                        @endforeach
-                    </tbody>
-                </table>
+                                <!-- Aksi -->
+                                @if(Auth::user()->hasRole('admin'))
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center gap-3">
+                                        <!-- Setujui -->
+                                        <form action="{{ route('pengajuan.setujui', $pengajuan->id) }}" method="POST">
+                                            @csrf
+                                            @method('PUT')
+                                            <button type="submit" 
+                                                class="text-green-600 hover:text-green-800 p-2.5 rounded-lg hover:bg-green-100 transition-all duration-200 font-semibold"
+                                                title="Setujui">
+                                                <i class="fas fa-check text-base"></i>
+                                            </button>
+                                        </form>
+
+                                        <!-- Tolak -->
+                                        <form action="{{ route('pengajuan.tolak', $pengajuan->id) }}" method="POST">
+                                            @csrf
+                                            @method('PUT')
+                                            <button type="submit" 
+                                                class="text-red-600 hover:text-red-800 p-2.5 rounded-lg hover:bg-red-100 transition-all duration-200 font-semibold"
+                                                title="Tolak">
+                                                <i class="fas fa-times text-base"></i>
+                                            </button>
+                                        </form>
+
+                                        <!-- Detail -->
+                                        <a href="{{ route('pengajuan.show', $pengajuan->id) }}" 
+                                           class="text-blue-600 hover:text-blue-800 p-2.5 rounded-lg hover:bg-blue-100 transition-all duration-200 font-semibold"
+                                           title="Detail">
+                                            <i class="fas fa-eye text-base"></i>
+                                        </a>
+
+                                        <!-- Hapus -->
+                                        <form action="{{ route('pengajuan.destroy', $pengajuan->id) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus pengajuan ini?')">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" 
+                                                    class="text-gray-600 hover:text-gray-800 p-2.5 rounded-lg hover:bg-gray-100 transition-all duration-200 font-semibold"
+                                                    title="Hapus">
+                                                <i class="fas fa-trash-alt text-base"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                                @endif
+                            </tr>
+                            @empty
+                            <tr class="border-b-2 border-gray-300">
+                                <td colspan="{{ Auth::user()->hasRole('admin') ? 5 : 4 }}" class="px-6 py-8 text-center">
+                                    <div class="flex flex-col items-center justify-center text-gray-500">
+                                        <i class="fas fa-inbox text-4xl mb-3 text-gray-300"></i>
+                                        <p class="text-lg font-bold">Tidak ada data pengajuan</p>
+                                        <p class="text-sm text-gray-400 mt-1 font-medium">Data pengajuan akan muncul di sini setelah ditambahkan</p>
+                                    </div>
+                                </td>
+                            </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                @if($pengajuans->hasPages())
+                <div class="mt-6">
+                    {{ $pengajuans->links() }}
+                </div>
+                @endif
+            </div>
+        </div>
+
+        <!-- Statistik bawah - Improved Version -->
+        <div class="mt-8 grid grid-cols-1 md:grid-cols-4 gap-6">
+            <!-- Total Pengajuan -->
+            <div class="bg-white border-2 border-orange-200 rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-300">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-orange-600 text-sm font-black uppercase tracking-wide mb-1">Total Pengajuan</p>
+                        <p class="text-3xl font-black text-gray-900">{{ $pengajuans->count() }}</p>
+                    </div>
+                    <div class="bg-orange-100 p-4 rounded-full">
+                        <i class="fas fa-clipboard-list text-3xl text-orange-600"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Menunggu -->
+            <div class="bg-white border-2 border-yellow-200 rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-300">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-yellow-600 text-sm font-black uppercase tracking-wide mb-1">Menunggu</p>
+                        <p class="text-3xl font-black text-gray-900">{{ $pengajuans->where('status', 'menunggu')->count() }}</p>
+                    </div>
+                    <div class="bg-yellow-100 p-4 rounded-full">
+                        <i class="fas fa-clock text-3xl text-yellow-600"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Diterima -->
+            <div class="bg-white border-2 border-green-200 rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-300">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-green-600 text-sm font-black uppercase tracking-wide mb-1">Diterima</p>
+                        <p class="text-3xl font-black text-gray-900">{{ $pengajuans->where('status', 'diterima')->count() }}</p>
+                    </div>
+                    <div class="bg-green-100 p-4 rounded-full">
+                        <i class="fas fa-check-circle text-3xl text-green-600"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Ditolak -->
+            <div class="bg-white border-2 border-red-200 rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-300">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-red-600 text-sm font-black uppercase tracking-wide mb-1">Ditolak</p>
+                        <p class="text-3xl font-black text-gray-900">{{ $pengajuans->where('status', 'ditolak')->count() }}</p>
+                    </div>
+                    <div class="bg-red-100 p-4 rounded-full">
+                        <i class="fas fa-times-circle text-3xl text-red-600"></i>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-</x-layouts.app-layout>
+
+    <style>
+        .animate-pulse {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+    </style>
+</x-app-layout>

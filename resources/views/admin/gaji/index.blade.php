@@ -1,120 +1,199 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="px-4 sm:px-6 lg:px-8">
-            <h2 class="text-2xl font-semibold text-gray-900">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="text-3xl font-black text-gray-900 tracking-tight">
                 {{ __('Daftar Gaji Karyawan') }}
             </h2>
         </div>
     </x-slot>
 
     <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-        <div class="bg-white shadow-sm rounded-lg p-6">
-            @if(Auth()->user()->hasRole('admin'))
-            <div class="flex justify-between items-center mb-6">
-                <a href="{{ route('gaji.create') }}" 
-                   class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 sm:px-6 sm:py-3 rounded-lg shadow-sm transition-colors duration-200 flex items-center gap-2 text-sm sm:text-base">
-                    <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                    </svg>
-                    Tambah Gaji
-                </a>
+        <!-- Card Container -->
+        <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 border border-orange-100">
+            <div class="p-8">
+                @if(Auth()->user()->hasRole('admin'))
+                <!-- Header dengan tabel yang lebih rapi -->
+                <div class="mb-8">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center">
+                                <i class="fas fa-money-check-alt text-orange-500 text-xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-2xl font-bold text-gray-900">Manajemen Gaji Karyawan</h3>
+                                <p class="text-gray-600 text-sm font-medium">Kelola data gaji dan pembayaran karyawan</p>
+                            </div>
+                        </div>
+                        <a href="{{ route('gaji.create') }}" 
+                           class="bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 rounded-lg shadow-md hover:shadow-lg transition transform hover:-translate-y-0.5 flex items-center gap-2 font-bold">
+                            <i class="fas fa-plus-circle"></i>
+                            Tambah Gaji
+                        </a>
+                    </div>
+                </div>
+                @endif
+
+                <!-- Table Container -->
+                <div class="overflow-x-auto rounded-lg border-2 border-gray-300 shadow-sm">
+                    <table class="w-full border-collapse">
+                        <thead class="bg-gradient-to-r from-orange-50 to-orange-100">
+                            <tr>
+                                <th class="px-6 py-4 text-left text-sm font-black text-gray-800 uppercase tracking-wide border-r-2 border-b-2 border-gray-300">
+                                    <i class="fas fa-user mr-2 text-orange-500"></i>Nama
+                                </th>
+                                <th class="px-6 py-4 text-left text-sm font-black text-gray-800 uppercase tracking-wide border-r-2 border-b-2 border-gray-300">
+                                    <i class="fas fa-calendar mr-2 text-orange-500"></i>Bulan
+                                </th>
+                                <th class="px-6 py-4 text-left text-sm font-black text-gray-800 uppercase tracking-wide border-r-2 border-b-2 border-gray-300">
+                                    <i class="fas fa-money-bill-wave mr-2 text-orange-500"></i>Total
+                                </th>
+                                <th class="px-6 py-4 text-left text-sm font-black text-gray-800 uppercase tracking-wide border-r-2 border-b-2 border-gray-300">
+                                    <i class="fas fa-check-circle mr-2 text-orange-500"></i>Status
+                                </th>
+                                @if(Auth::user()->hasRole('admin'))
+                                <th class="px-6 py-4 text-left text-sm font-black text-gray-800 uppercase tracking-wide border-b-2 border-gray-300">
+                                    <i class="fas fa-cogs mr-2 text-orange-500"></i>Aksi
+                                </th>
+                                @endif
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white">
+                            @forelse($gajis as $gaji)
+                            <tr class="hover:bg-orange-50 transition-colors duration-200 border-b-2 border-gray-300">
+                                <td class="px-6 py-4 text-sm text-gray-900 font-bold border-r-2 border-gray-300">
+                                    {{ $gaji->user->name }}
+                                </td>
+                                <td class="px-6 py-4 text-sm text-gray-800 font-semibold border-r-2 border-gray-300">{{ $gaji->bulan }}</td>
+                                <td class="px-6 py-4 text-sm font-bold text-gray-900 border-r-2 border-gray-300">
+                                    Rp {{ number_format($gaji->total_gaji, 0, ',', '.') }}
+                                </td>
+                                <td class="px-6 py-4 border-r-2 border-gray-300">
+                                    <span class="px-4 py-2 rounded-full text-xs font-bold flex items-center justify-center w-max gap-2 {{
+                                        $gaji->status == 'Lunas' 
+                                            ? 'bg-green-100 text-green-800 border-2 border-green-300' 
+                                            : 'bg-red-100 text-red-800 border-2 border-red-300 animate-pulse'
+                                    }}">
+                                        @if($gaji->status == 'Lunas')
+                                            <i class="fas fa-check text-green-600"></i>
+                                        @else
+                                            <i class="fas fa-times text-red-600"></i>
+                                        @endif
+                                        {{ $gaji->status }}
+                                    </span>
+                                </td>
+                                
+                                @if(Auth::user()->hasRole('admin'))
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center gap-3">
+                                        <!-- Edit Button -->
+                                        <a href="{{ route('gaji.edit', $gaji->id) }}" 
+                                           class="text-orange-600 hover:text-orange-800 p-2.5 rounded-lg hover:bg-orange-100 transition-all duration-200 font-semibold"
+                                           title="Edit">
+                                            <i class="fas fa-edit text-base"></i>
+                                        </a>
+
+                                        <!-- Mark as Paid Button -->
+                                        @if($gaji->status === 'Belum Dibayar')
+                                        <form action="{{ route('gaji.updateStatus', $gaji->id) }}" method="POST">
+                                            @csrf
+                                            @method('PATCH')
+                                            <button type="submit" 
+                                                    class="text-green-600 hover:text-green-800 p-2.5 rounded-lg hover:bg-green-100 transition-all duration-200 font-semibold"
+                                                    title="Tandai Lunas">
+                                                <i class="fas fa-check text-base"></i>
+                                            </button>
+                                        </form>
+                                        @endif
+
+                                        <!-- Detail Button -->
+                                        <a href="{{ route('gaji.show', $gaji->id) }}" 
+                                            class="text-blue-600 hover:text-blue-800 p-2.5 rounded-lg hover:bg-blue-100 transition-all duration-200 font-semibold"
+                                            title="Detail">
+                                            <i class="fas fa-eye text-base"></i>
+                                        </a>
+
+                                        <!-- Delete Button -->
+                                        <form action="{{ route('gaji.destroy', $gaji->id) }}" method="POST">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" 
+                                                    onclick="return confirm('Yakin ingin menghapus data gaji ini?')" 
+                                                    class="text-red-600 hover:text-red-800 p-2.5 rounded-lg hover:bg-red-100 transition-all duration-200 font-semibold"
+                                                    title="Hapus">
+                                                <i class="fas fa-trash-alt text-base"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                                @endif
+                            </tr>
+                            @empty
+                            <tr class="border-b-2 border-gray-300">
+                                <td colspan="{{ Auth::user()->hasRole('admin') ? 5 : 4 }}" class="px-6 py-8 text-center">
+                                    <div class="flex flex-col items-center justify-center text-gray-500">
+                                        <i class="fas fa-inbox text-4xl mb-3 text-gray-300"></i>
+                                        <p class="text-lg font-bold">Tidak ada data gaji</p>
+                                        <p class="text-sm text-gray-400 mt-1 font-medium">Data gaji akan muncul di sini setelah ditambahkan</p>
+                                    </div>
+                                </td>
+                            </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
             </div>
-            @endif
+        </div>
 
-            <div class="overflow-x-auto rounded-lg border border-gray-200 shadow-sm">
-                <table class="w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50">
-                        <tr>
-                            <th class="px-4 py-3 sm:px-6 sm:py-4 text-left text-xs sm:text-sm font-semibold text-gray-700">Nama</th>
-                            <th class="px-4 py-3 sm:px-6 sm:py-4 text-left text-xs sm:text-sm font-semibold text-gray-700">Bulan</th>
-                            <th class="px-4 py-3 sm:px-6 sm:py-4 text-left text-xs sm:text-sm font-semibold text-gray-700">Total</th>
-                            <th class="px-4 py-3 sm:px-6 sm:py-4 text-left text-xs sm:text-sm font-semibold text-gray-700">Status</th>
-                            @if(Auth::user()->hasRole('admin'))
-                            <th class="px-4 py-3 sm:px-6 sm:py-4 text-left text-xs sm:text-sm font-semibold text-gray-700">Aksi</th>
-                            @endif
-                        </tr>
-                    </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
-                        @forelse($gajis as $gaji)
-                        <tr class="hover:bg-gray-50 transition-colors duration-200">
-                            <td class="px-4 py-3 sm:px-6 sm:py-4 text-xs sm:text-sm text-gray-900">{{ $gaji->user->name }}</td>
-                            <td class="px-4 py-3 sm:px-6 sm:py-4 text-xs sm:text-sm text-gray-900">{{ $gaji->bulan }}</td>
-                            <td class="px-4 py-3 sm:px-6 sm:py-4 text-xs sm:text-sm text-gray-900">Rp {{ number_format($gaji->total_gaji, 0, ',', '.') }}</td>
-                            <td class="px-4 py-3 sm:px-6 sm:py-4">
-                                <span class="px-3 py-1 rounded-full text-xs font-medium flex items-center justify-center w-max gap-1 {{
-                                    $gaji->status == 'Lunas' 
-                                        ? 'bg-green-100 text-green-800' 
-                                        : 'bg-red-100 text-red-800 animate-pulse'
-                                }}">
-                                    @if($gaji->status != 'Lunas')
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    </svg>
-                                    @endif
-                                    {{ $gaji->status }}
-                                </span>
-                            </td>
-                            
-                            @if(Auth::user()->hasRole('admin'))
-                            <td class="px-4 py-3 sm:px-6 sm:py-4">
-                                <div class="flex items-center gap-2 sm:gap-3 flex-wrap">
-                                    <a href="{{ route('gaji.edit', $gaji->id) }}" 
-                                       class="text-indigo-600 hover:text-indigo-900 p-1 rounded hover:bg-indigo-50"
-                                       title="Edit">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
-                                        </svg>
-                                    </a>
-
-                                    @if($gaji->status === 'Belum Dibayar')
-                                    <form action="{{ route('gaji.updateStatus', $gaji->id) }}" method="POST">
-                                        @csrf
-                                        @method('PATCH')
-                                        <button type="submit" 
-                                                class="text-green-600 hover:text-green-900 p-1 rounded hover:bg-green-50"
-                                                title="Tandai Lunas">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                                            </svg>
-                                        </button>
-                                    </form>
-                                    @endif
-
-                                    <a href="{{ route('gaji.show', $gaji->id) }}" 
-                                        class="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50"
-                                        title="Detail">
-                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                                         </svg>
-                                     </a>
-
-                                    <form action="{{ route('gaji.destroy', $gaji->id) }}" method="POST">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" 
-                                                onclick="return confirm('Yakin ingin menghapus?')" 
-                                                class="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50"
-                                                title="Hapus">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                                            </svg>
-                                        </button>
-                                    </form>
-                                </div>
-                            </td>
-                            @endif
-                        </tr>
-                        @empty
-                        <tr>
-                            <td colspan="{{ Auth::user()->hasRole('admin') ? 5 : 4 }}" class="px-6 py-4 text-center text-sm text-gray-500">
-                                Tidak ada data gaji.
-                            </td>
-                        </tr>
-                        @endforelse
-                    </tbody>
-                </table>
+        <!-- Stats Card - Improved Version -->
+        <div class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- Total Gaji Card -->
+            <div class="bg-white border-2 border-orange-200 rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-300">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-orange-600 text-sm font-black uppercase tracking-wide mb-1">Total Gaji</p>
+                        <p class="text-3xl font-black text-gray-900">Rp {{ number_format($gajis->sum('total_gaji'), 0, ',', '.') }}</p>
+                    </div>
+                    <div class="bg-orange-100 p-4 rounded-full">
+                        <i class="fas fa-money-bill-wave text-3xl text-orange-600"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Gaji Lunas Card -->
+            <div class="bg-white border-2 border-green-200 rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-300">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-green-600 text-sm font-black uppercase tracking-wide mb-1">Gaji Lunas</p>
+                        <p class="text-3xl font-black text-gray-900">{{ $gajis->where('status', 'Lunas')->count() }}</p>
+                    </div>
+                    <div class="bg-green-100 p-4 rounded-full">
+                        <i class="fas fa-check-circle text-3xl text-green-600"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Belum Dibayar Card -->
+            <div class="bg-white border-2 border-red-200 rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-300">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-red-600 text-sm font-black uppercase tracking-wide mb-1">Belum Dibayar</p>
+                        <p class="text-3xl font-black text-gray-900">{{ $gajis->where('status', 'Belum Dibayar')->count() }}</p>
+                    </div>
+                    <div class="bg-red-100 p-4 rounded-full">
+                        <i class="fas fa-exclamation-circle text-3xl text-red-600"></i>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
+
+    <style>
+        .animate-pulse {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+    </style>
 </x-app-layout>

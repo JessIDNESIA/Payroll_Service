@@ -94,7 +94,7 @@
             <div class="border-t border-gray-200 pt-4 mb-4">
               <div class="flex justify-between mb-2">
                 <span>Nama Karyawan</span>
-                <span class="font-medium">Budi Santoso</span>
+                <span class="font-medium">Arfiq Rimeldo</span>
               </div>
               <div class="flex justify-between mb-2">
                 <span>Jabatan</span>

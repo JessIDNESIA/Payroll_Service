@@ -14,59 +14,61 @@ class PengajuanController extends Controller
      */
     public function index()
     {
-    $pengajuans = Pengajuan::with('user')->latest()->get();
-    return view('user.pengajuan.index', compact('pengajuans'));
+        // Gunakan paginate agar bisa pakai hasPages() dan links()
+        $pengajuans = Pengajuan::with('user')->latest()->paginate(10);
+
+        return view('user.pengajuan.index', compact('pengajuans'));
     }
 
     public function setujui($id)
     {
-    $pengajuan = Pengajuan::findOrFail($id);
-    $pengajuan->status = 'diterima';
-    $pengajuan->save();
+        $pengajuan = Pengajuan::findOrFail($id);
+        $pengajuan->status = 'diterima';
+        $pengajuan->save();
 
-    return back()->with('success', 'Pengajuan diterima.');
+        return back()->with('success', 'Pengajuan diterima.');
     }
 
     public function tolak($id)
     {
-    $pengajuan = Pengajuan::findOrFail($id);
-    $pengajuan->status = 'ditolak';
-    $pengajuan->save();
+        $pengajuan = Pengajuan::findOrFail($id);
+        $pengajuan->status = 'ditolak';
+        $pengajuan->save();
 
-    return back()->with('error', 'Pengajuan ditolak.');
+        return back()->with('error', 'Pengajuan ditolak.');
     }
 
     public function destroy($id)
     {
-    Pengajuan::destroy($id);
-    return back()->with('success', 'Pengajuan dihapus.');
+        Pengajuan::destroy($id);
+        return back()->with('success', 'Pengajuan dihapus.');
     }
 
     public function create()
     {
-    return view('user.pengajuan.create'); // Pastikan view ini ada
+        return view('user.pengajuan.create'); // Pastikan view ini ada
     }
 
     public function store(Request $request)
     {
-    $request->validate([
-        'judul' => 'required|string|max:255',
-        'deskripsi' => 'required|string',
-    ]);
+        $request->validate([
+            'judul' => 'required|string|max:255',
+            'deskripsi' => 'required|string',
+        ]);
 
-    Pengajuan::create([
-        'user_id' => Auth::id(),
-        'judul' => $request->judul,
-        'deskripsi' => $request->deskripsi,
-        'status' => 'menunggu',
-    ]);
+        Pengajuan::create([
+            'user_id' => Auth::id(),
+            'judul' => $request->judul,
+            'deskripsi' => $request->deskripsi,
+            'status' => 'menunggu',
+        ]);
 
-    return redirect()->route('user.pengajuan.index')->with('success', 'Pengajuan berhasil dikirim.');
+        return redirect()->route('user.pengajuan.index')->with('success', 'Pengajuan berhasil dikirim.');
     }
 
     public function show($id)
     {
-    $pengajuan = Pengajuan::with('user')->findOrFail($id);
-    return view('user.pengajuan.show', compact('pengajuan'));
+        $pengajuan = Pengajuan::with('user')->findOrFail($id);
+        return view('user.pengajuan.show', compact('pengajuan'));
     }
 }

@@ -49,6 +49,7 @@ Route::middleware('auth')->group(function () {
     // Masalah pengajuan
     Route::get('pengajuan', [PengajuanController::class, 'index'])->name('user.pengajuan.index');
     Route::get('pengajuan/create', [PengajuanController::class, 'create'])->name('pengajuan.create');
+    Route::post('/pengajuan', [PengajuanController::class, 'store'])->name('user.pengajuan.store');
     Route::post('pengajuan', [PengajuanController::class, 'store'])->name('pengajuan.store');
     Route::get('pengajuan/{pengajuan}', [PengajuanController::class, 'show'])
         ->name('pengajuan.show'); // ⬅️ Tambahkan ini
