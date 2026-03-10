@@ -45,39 +45,90 @@
     </div>
 
     <!-- Chart Section -->
-    <div class="bg-white p-6 rounded-xl shadow-md border border-gray-100">
-        <h3 class="text-lg font-bold text-gray-800 mb-4">Grafik Pertumbuhan Karyawan</h3>
-        <div class="h-[400px]">
-            <canvas id="employeeChart"></canvas>
+    <div class="bg-white p-8 rounded-3xl shadow-xl border border-gray-100 overflow-hidden relative">
+        <div class="absolute top-0 right-0 p-8">
+            <div
+                class="px-4 py-1 bg-orange-50 text-orange-600 rounded-full text-xs font-black uppercase tracking-widest">
+                Growth Metrics</div>
+        </div>
+
+        <h3 class="text-2xl font-black text-gray-800 mb-8 flex items-center gap-3">
+            <span class="w-3 h-8 bg-blue-500 rounded-full"></span>
+            Statistik Pertumbuhan Karyawan
+        </h3>
+
+        <div class="h-[400px] w-full relative">
+            <canvas id="employeeChart" class="w-full h-full"></canvas>
         </div>
     </div>
 
     @push('scripts')
-        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
         <script>
             document.addEventListener('livewire:initialized', () => {
-                const ctx = document.getElementById('employeeChart');
-                new Chart(ctx, {
-                    type: 'line',
-                    data: @json($chartData),
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                ticks: {
-                                    stepSize: 1
-                                }
-                            }
+                const initChart = () => {
+                    const canvas = document.getElementById('employeeChart');
+                    if (!canvas) return;
+
+                    const ctx = canvas.getContext('2d');
+                    if (window.myDashboardChart) {
+                        window.myDashboardChart.destroy();
+                    }
+
+                    const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+                    gradient.addColorStop(0, 'rgba(59, 130, 246, 0.1)');
+                    gradient.addColorStop(1, 'rgba(59, 130, 246, 0)');
+
+                    window.myDashboardChart = new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: @json($chartData['labels']),
+                            datasets: [{
+                                ...@json($chartData['datasets'][0]),
+                                backgroundColor: gradient,
+                                fill: true,
+                                pointBackgroundColor: '#fff',
+                                pointBorderColor: 'rgb(59, 130, 246)',
+                                pointBorderWidth: 3,
+                                pointRadius: 5,
+                                pointHoverRadius: 8
+                            }]
                         },
-                        plugins: {
-                            legend: {
-                                display: true,
-                                position: 'top',
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            interaction: {
+                                intersect: false,
+                                mode: 'index'
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    grid: {
+                                        color: 'rgba(0,0,0,0.03)'
+                                    },
+                                    ticks: {
+                                        stepSize: 1,
+                                        font: { weight: 'bold' }
+                                    }
+                                },
+                                x: {
+                                    grid: { display: false },
+                                    ticks: { font: { weight: 'bold' } }
+                                }
+                            },
+                            plugins: {
+                                legend: { display: false }
                             }
                         }
-                    }
+                    });
+                };
+
+                initChart();
+
+                // Re-init on Livewire updates if necessary
+                Livewire.on('refreshChart', () => {
+                    initChart();
                 });
             });
         </script>

@@ -34,31 +34,32 @@
                                 class="w-full border border-gray-300 rounded-xl p-4 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200 bg-white shadow-sm">
                                 @foreach ($users as $user)
                                     @if ($user->name !== 'Admin')
-                                        <option value="{{ $user->id }}"
-                                            {{ old('user_id') == $user->id ? 'selected' : '' }}>
+                                        <option value="{{ $user->id }}" {{ old('user_id') == $user->id ? 'selected' : '' }}>
                                             {{ $user->name }}
                                         </option>
                                     @endif
                                 @endforeach
-
                             </select>
                             @error('user_id')
                                 <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                             @enderror
                         </div>
 
+                        {{-- ✏️ DIUBAH: input bulan dari type="text" menjadi type="date" dengan date picker native --}}
                         <!-- Bulan -->
                         <div class="space-y-2">
                             <label for="bulan" class="block text-sm font-semibold text-gray-700">
                                 <i class="fas fa-calendar text-orange-500 mr-2"></i>Bulan
                             </label>
-                            <input type="text" name="bulan" id="bulan" value="{{ old('bulan') }}"
-                                class="w-full border border-gray-300 rounded-xl p-4 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200 shadow-sm"
-                                placeholder="Contoh: Januari 2025">
+                            <input type="date" name="bulan" id="bulan" value="{{ old('bulan') }}"
+                                placeholder="dd/mm/yyyy"
+                                class="w-full border border-gray-300 rounded-xl p-4 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200 shadow-sm">
+                            {{-- ✏️ DIUBAH: type="date" dengan class sama persis seperti input lainnya --}}
                             @error('bulan')
                                 <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                             @enderror
                         </div>
+                        {{-- ✏️ SELESAI PERUBAHAN --}}
 
                         <!-- Gaji Pokok -->
                         <div class="space-y-2">
@@ -175,7 +176,7 @@
 
     <script>
         // Real-time total calculation
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             const gajiPokokInput = document.getElementById('gaji_pokok');
             const tunjanganInput = document.getElementById('tunjangan');
             const potonganInput = document.getElementById('potongan');

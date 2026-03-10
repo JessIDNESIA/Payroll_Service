@@ -21,11 +21,12 @@ class AdminDashboard extends Component
         $this->totalPengajuan = Pengajuan::count();
         $this->totalKaryawan = Datakaryawan::count();
 
-        // Prepare chart data: Employee count by month of entry
+        // Prepare chart data: Employee count by month of entry (Current Year)
         $employeesByMonth = Datakaryawan::select(
             DB::raw('MONTH(tanggal_masuk) as month'),
             DB::raw('count(*) as count')
         )
+            ->whereYear('tanggal_masuk', now()->year)
             ->groupBy('month')
             ->orderBy('month')
             ->get();
@@ -46,11 +47,9 @@ class AdminDashboard extends Component
                 [
                     'label' => 'Karyawan Masuk',
                     'data' => $data,
-                    'backgroundColor' => 'rgba(249, 115, 22, 0.2)',
-                    'borderColor' => 'rgb(249, 115, 22)',
-                    'borderWidth' => 2,
+                    'borderColor' => 'rgb(59, 130, 246)',
+                    'borderWidth' => 4,
                     'tension' => 0.4,
-                    'fill' => true,
                 ]
             ]
         ];
