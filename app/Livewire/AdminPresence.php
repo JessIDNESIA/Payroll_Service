@@ -16,6 +16,9 @@ class AdminPresence extends Component
 
     public $filterTanggal = '';
     public $filterNama = '';
+    public $todayPresence;
+    public $flashMessage = '';
+    public $flashType = 'success';
 
     protected $queryString = ['filterTanggal', 'filterNama'];
 
@@ -28,6 +31,64 @@ class AdminPresence extends Component
 
         // Default filter: today
         $this->filterTanggal = now()->toDateString();
+        $this->loadTodayPresence();
+    }
+
+    public function loadTodayPresence()
+    {
+        $this->todayPresence = Presensi::where('user_id', Auth::id())
+            ->where('tanggal', now()->toDateString())
+            ->first();
+    }
+
+    public function checkIn()
+    {
+        $userId = Auth::id();
+        $today = now()->toDateString();
+        $now = now();
+
+        $existing = Presensi::where('user_id', $userId)
+            ->where('tanggal', $today)
+            ->first();
+
+        if (!$existing) {
+            $batasJam = now()->today()->setTime(8, 0, 0);
+            $status = $now->lte($batasJam) ? 'hadir' : 'terlambat';
+
+            Presensi::create([
+                'user_id' => $userId,
+                'tanggal' => $today,
+                'jam_masuk' => $now->toTimeString(),
+                'status' => $status,
+            ]);
+
+            $this->flashMessage = "Check-in berhasil (" . ($status == 'hadir' ? "Hadir" : "Terlambat") . ")";
+            $this->flashType = $status == 'hadir' ? 'success' : 'warning';
+        }
+
+        $this->loadTodayPresence();
+    }
+
+    public function checkOut()
+    {
+        $userId = Auth::id();
+        $today = now()->toDateString();
+        $now = now()->toTimeString();
+
+        $existing = Presensi::where('user_id', $userId)
+            ->where('tanggal', $today)
+            ->first();
+
+        if ($existing && !$existing->jam_keluar) {
+            $existing->update([
+                'jam_keluar' => $now,
+            ]);
+
+            $this->flashMessage = "Check-out berhasil!";
+            $this->flashType = 'success';
+        }
+
+        $this->loadTodayPresence();
     }
 
     public function updatingFilterTanggal()

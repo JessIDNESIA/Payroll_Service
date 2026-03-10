@@ -95,6 +95,6 @@ class Presence extends Component
 
     public function render()
     {
-        return view('livewire.presence');
+        return view('livewire.presence')->layout('layouts.app');
     }
 }

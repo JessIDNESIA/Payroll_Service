@@ -36,6 +36,46 @@
                     </div>
                 </div>
             </div>
+
+            <hr class="my-8 border-gray-100">
+
+            {{-- Admin Personal Attendance Actions --}}
+            <div class="flex flex-col md:flex-row items-center justify-between gap-6">
+                <div class="flex items-center gap-4">
+                    <div class="p-4 bg-orange-100 rounded-2xl">
+                        <svg class="w-8 h-8 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    </div>
+                    <div>
+                        <p class="text-sm font-bold text-gray-400 uppercase tracking-widest">Presensi Admin (Anda)</p>
+                        <p class="text-xl font-black text-gray-800">{{ now()->locale('id')->isoFormat('dddd, D MMMM Y') }}</p>
+                    </div>
+                </div>
+
+                <div class="flex gap-4">
+                    @if($flashMessage)
+                        <div x-data="{ show: true }" x-init="setTimeout(() => show = false, 3000)" x-show="show" class="fixed top-20 right-10 z-50 px-6 py-3 rounded-xl shadow-2xl font-bold {{ $flashType === 'success' ? 'bg-green-500 text-white' : 'bg-yellow-500 text-white' }}">
+                            {{ $flashMessage }}
+                        </div>
+                    @endif
+
+                    @if(!$todayPresence)
+                        <button wire:click="checkIn" wire:key="admin-check-in-btn" class="px-8 py-3 bg-green-600 hover:bg-green-700 text-white font-black rounded-xl shadow-lg transition-all transform hover:-translate-y-1 active:scale-95 flex items-center gap-2">
+                            <i class="fas fa-sign-in-alt"></i> CHECK IN
+                        </button>
+                    @elseif(!$todayPresence->jam_keluar)
+                         <div class="px-4 py-3 bg-green-50 text-green-700 rounded-xl text-xs font-bold border border-green-100 flex items-center gap-2">
+                            Masuk: {{ \Carbon\Carbon::parse($todayPresence->jam_masuk)->format('H:i') }}
+                        </div>
+                        <button wire:click="checkOut" wire:key="admin-check-out-btn" class="px-8 py-3 bg-red-600 hover:bg-red-700 text-white font-black rounded-xl shadow-lg transition-all transform hover:-translate-y-1 active:scale-95 flex items-center gap-2">
+                            <i class="fas fa-sign-out-alt"></i> PULANG
+                        </button>
+                    @else
+                        <div class="px-8 py-3 bg-gray-100 text-gray-400 font-black rounded-xl border border-gray-200 flex items-center gap-2 italic">
+                            <i class="fas fa-check-circle text-green-500"></i> SELESAI
+                        </div>
+                    @endif
+                </div>
+            </div>
         </div>
     </div>
 

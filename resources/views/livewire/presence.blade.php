@@ -69,6 +69,7 @@
                 @if(!$todayPresence)
                     <button
                         wire:click="checkIn"
+                        wire:key="user-checkin-btn"
                         wire:loading.attr="disabled"
                         wire:target="checkIn"
                         class="group relative px-10 py-5 bg-green-600 hover:bg-green-700 text-white font-black rounded-2xl shadow-[0_10px_30px_rgba(22,163,74,0.3)] transition-all transform hover:-translate-y-1 active:scale-95 flex items-center gap-4 text-xl disabled:opacity-60 disabled:cursor-not-allowed"
@@ -91,6 +92,7 @@
                     </div>
                     <button
                         wire:click="checkOut"
+                        wire:key="user-checkout-btn"
                         wire:loading.attr="disabled"
                         wire:target="checkOut"
                         class="group relative px-10 py-5 bg-red-600 hover:bg-red-700 text-white font-black rounded-2xl shadow-[0_10px_30px_rgba(220,38,38,0.3)] transition-all transform hover:-translate-y-1 active:scale-95 flex items-center gap-4 text-xl disabled:opacity-60 disabled:cursor-not-allowed"
