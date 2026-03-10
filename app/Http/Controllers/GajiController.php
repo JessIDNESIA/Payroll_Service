@@ -12,29 +12,34 @@ class GajiController extends Controller
     /**
      * Display a listing of the resource.
      */
-public function index()
-{
-    if (auth()->user()->hasRole('admin')) {
-        // Tampilan Admin → semua gaji
-        $gajis = Gaji::with('user')->latest()->paginate(10);
-    } else {
-        // Tampilan User → hanya gaji milik user login
-        $gajis = Gaji::with('user')
-            ->where('user_id', auth()->id())
-            ->latest()
-            ->paginate(10);
+    public function index()
+    {
+        $isAdmin = auth()->user()->hasRole('admin');
+
+        if ($isAdmin) {
+            $gajis = Gaji::with('user')->latest()->paginate(10);
+        } else {
+            $gajis = Gaji::with('user')
+                ->where('user_id', auth()->id())
+                ->latest()
+                ->paginate(10);
+        }
+
+        // Untuk statistik tetap akurat (karena paginate hanya ambil per halaman),
+        // kita bisa ambil data tambahan langsung dari database.
+        $statsQuery = Gaji::query();
+        if (!$isAdmin) {
+            $statsQuery->where('user_id', auth()->id());
+        }
+
+        $stats = [
+            'total_gaji' => (clone $statsQuery)->sum('total_gaji'),
+            'lunas' => (clone $statsQuery)->where('status', 'Lunas')->count(),
+            'belum_dibayar' => (clone $statsQuery)->where('status', 'Belum Dibayar')->count(),
+        ];
+
+        return view('admin.gaji.index', compact('gajis', 'stats'));
     }
-
-    // Untuk statistik tetap akurat (karena paginate hanya ambil per halaman),
-    // kita bisa ambil data tambahan langsung dari database.
-    $stats = [
-        'total_gaji'    => Gaji::sum('total_gaji'),
-        'lunas'         => Gaji::where('status', 'Lunas')->count(),
-        'belum_dibayar' => Gaji::where('status', 'Belum Dibayar')->count(),
-    ];
-
-    return view('admin.gaji.index', compact('gajis', 'stats'));
-}
 
 
     /**
@@ -49,7 +54,8 @@ public function index()
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request) {
+    public function store(Request $request)
+    {
         $data = $request->validate([
             'user_id' => 'required|exists:users,id',
             'bulan' => 'required|string',
@@ -68,39 +74,45 @@ public function index()
         ]);
 
         // Hitung total gaji SEBELUM disimpan
-    $data['total_gaji'] = ($data['gaji_pokok'] + ($data['tunjangan'] ?? 0)) - ($data['potongan'] ?? 0);
-    $data['status'] = 'Belum Dibayar';
+        $data['total_gaji'] = ($data['gaji_pokok'] + ($data['tunjangan'] ?? 0)) - ($data['potongan'] ?? 0);
+        $data['status'] = 'Belum Dibayar';
 
-    Gaji::create($data);
+        Gaji::create($data);
 
-    return redirect()->route('gaji.index')->with('success', 'Gaji berhasil ditambahkan.');
-    }
-    
-    public function bayar($id) {
-       // Ambil data gaji berdasarkan ID
-    $gaji = Gaji::findOrFail($id);
-
-    // Periksa apakah gaji tersebut milik pengguna yang sedang login
-    if ($gaji->user_id !== auth()->id()) {
-        // Perbarui status gaji menjadi 'Lunas'
-        $gaji->status = 'Lunas';
-        $gaji->save();
+        return redirect()->route('gaji.index')->with('success', 'Gaji berhasil ditambahkan.');
     }
 
+    public function bayar($id)
+    {
+        // Ambil data gaji berdasarkan ID
+        $gaji = Gaji::findOrFail($id);
 
-    // Redirect kembali ke daftar gaji dengan pesan sukses
-    return redirect()->route('gaji.index')->with('success', 'Status gaji berhasil diperbarui.');
+        // Periksa apakah gaji tersebut milik pengguna yang sedang login
+        if ($gaji->user_id !== auth()->id()) {
+            // Perbarui status gaji menjadi 'Lunas'
+            $gaji->status = 'Lunas';
+            $gaji->save();
+        }
+
+
+        // Redirect kembali ke daftar gaji dengan pesan sukses
+        return redirect()->route('gaji.index')->with('success', 'Status gaji berhasil diperbarui.');
     }
 
-    
+
 
     /**
      * Display the specified resource.
      */
     public function show($id)
     {
-    $gaji = Gaji::with('user')->findOrFail($id);
-    return view('admin.gaji.show', compact('gaji'));
+        $gaji = Gaji::with('user')->findOrFail($id);
+
+        if (!auth()->user()->hasRole('admin') && $gaji->user_id !== auth()->id()) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        return view('admin.gaji.show', compact('gaji'));
     }
 
     /**
@@ -125,7 +137,7 @@ public function index()
             'total_gaji' => 'required|numeric',
             'status' => 'required|in:Belum Dibayar,Lunas',
         ]);
-    
+
         $gaji = Gaji::findOrFail($id);
         $gaji->update([
             'user_id' => $request->user_id,
@@ -133,7 +145,7 @@ public function index()
             'total_gaji' => $request->total_gaji,
             'status' => $request->status,
         ]);
-    
+
         return redirect()->route('gaji.index')->with('success', 'Data gaji berhasil diperbarui.');
     }
 
@@ -150,14 +162,14 @@ public function index()
 
     public function updateStatus($id)
     {
-    $gaji = Gaji::findOrFail($id);
+        $gaji = Gaji::findOrFail($id);
 
-    // Update status ke "Lunas"
-    $gaji->status = 'Lunas';
-    $gaji->save();
+        // Update status ke "Lunas"
+        $gaji->status = 'Lunas';
+        $gaji->save();
 
-    // Notifikasi sukses
-    return redirect()->back()->with('success', 'Status gaji berhasil diperbarui menjadi Lunas.');
+        // Notifikasi sukses
+        return redirect()->back()->with('success', 'Status gaji berhasil diperbarui menjadi Lunas.');
     }
 
 }

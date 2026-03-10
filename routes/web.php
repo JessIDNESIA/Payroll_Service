@@ -18,13 +18,9 @@ Route::get('/dashboard', function () {
 // ===================================================
 Route::middleware(['auth', 'role:admin'])->group(function () {
     // Gaji (admin) — resource tanpa edit/update/index/show (didefinisi manual untuk URL yang tepat)
-    Route::resource('gaji', GajiController::class)->only(['create', 'store', 'destroy']);
-    Route::get('gaji', [GajiController::class, 'index'])->name('gaji.index');
-    Route::get('gaji/{id}', [GajiController::class, 'show'])->name('gaji.show');
+    Route::resource('gaji', GajiController::class)->only(['create', 'store', 'destroy', 'edit', 'update']);
     Route::post('gaji/{id}/bayar', [GajiController::class, 'bayar'])->name('gaji.bayar');
     Route::patch('gaji/{id}/status', [GajiController::class, 'updateStatus'])->name('gaji.updateStatus');
-    Route::get('admin/gaji/{gaji}/edit', [GajiController::class, 'edit'])->name('gaji.edit');
-    Route::put('admin/gaji/{gaji}', [GajiController::class, 'update'])->name('gaji.update');
 
     // Pengajuan (admin) dengan prefix admin
     Route::prefix('admin')->name('admin.')->group(function () {
@@ -51,6 +47,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    // Gaji (user & admin)
+    Route::get('gaji', [GajiController::class, 'index'])->name('gaji.index');
+    Route::get('gaji/{id}', [GajiController::class, 'show'])->name('gaji.show');
 
     // Presensi Karyawan
     Route::get('/presensi', \App\Livewire\Presence::class)->name('presensi');

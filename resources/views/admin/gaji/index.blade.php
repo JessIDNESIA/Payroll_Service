@@ -91,7 +91,7 @@
                                 $gaji->status == 'Lunas'
                                 ? 'bg-green-100 text-green-800 border-2 border-green-300'
                                 : 'bg-red-100 text-red-800 border-2 border-red-300 animate-pulse'
-                                                                                    }}">
+                                                                                                            }}">
                                                                 @if($gaji->status == 'Lunas')
                                                                     <i class="fas fa-check text-green-600"></i>
                                                                 @else
@@ -174,7 +174,7 @@
                     <div>
                         <p class="text-orange-600 text-sm font-black uppercase tracking-wide mb-1">Total Gaji</p>
                         <p class="text-3xl font-black text-gray-900">Rp
-                            {{ number_format($gajis->sum('total_gaji'), 0, ',', '.') }}
+                            {{ number_format($stats['total_gaji'], 0, ',', '.') }}
                         </p>
                     </div>
                     <div class="bg-orange-100 p-4 rounded-full">
@@ -189,7 +189,7 @@
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-green-600 text-sm font-black uppercase tracking-wide mb-1">Gaji Lunas</p>
-                        <p class="text-3xl font-black text-gray-900">{{ $gajis->where('status', 'Lunas')->count() }}</p>
+                        <p class="text-3xl font-black text-gray-900">{{ $stats['lunas'] }}</p>
                     </div>
                     <div class="bg-green-100 p-4 rounded-full">
                         <i class="fas fa-check-circle text-3xl text-green-600"></i>
@@ -204,7 +204,7 @@
                     <div>
                         <p class="text-red-600 text-sm font-black uppercase tracking-wide mb-1">Belum Dibayar</p>
                         <p class="text-3xl font-black text-gray-900">
-                            {{ $gajis->where('status', 'Belum Dibayar')->count() }}
+                            {{ $stats['belum_dibayar'] }}
                         </p>
                     </div>
                     <div class="bg-red-100 p-4 rounded-full">

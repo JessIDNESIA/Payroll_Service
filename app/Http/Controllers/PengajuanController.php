@@ -14,10 +14,31 @@ class PengajuanController extends Controller
      */
     public function index()
     {
-        // Gunakan paginate agar bisa pakai hasPages() dan links()
-        $pengajuans = Pengajuan::with('user')->latest()->paginate(10);
+        // Pastikan admin bisa melihat semua (cek role ATAU akses lewat route admin)
+        $isAdmin = auth()->user()->hasRole('admin') || request()->routeIs('admin.*');
 
-        return view('user.pengajuan.index', compact('pengajuans'));
+        if ($isAdmin) {
+            // Admin can see everything
+            $pengajuans = Pengajuan::with('user')->latest()->paginate(10);
+            $statsQuery = Pengajuan::query();
+        } else {
+            // Regular user only sees their own
+            $pengajuans = Pengajuan::with('user')
+                ->where('user_id', auth()->id())
+                ->latest()
+                ->paginate(10);
+            $statsQuery = Pengajuan::where('user_id', auth()->id());
+        }
+
+        // Statistik summary
+        $stats = [
+            'total' => (clone $statsQuery)->count(),
+            'menunggu' => (clone $statsQuery)->where('status', 'menunggu')->count(),
+            'diterima' => (clone $statsQuery)->where('status', 'diterima')->count(),
+            'ditolak' => (clone $statsQuery)->where('status', 'ditolak')->count(),
+        ];
+
+        return view('user.pengajuan.index', compact('pengajuans', 'stats'));
     }
 
     public function setujui($id)
@@ -69,6 +90,14 @@ class PengajuanController extends Controller
     public function show($id)
     {
         $pengajuan = Pengajuan::with('user')->findOrFail($id);
+
+        // Cek otorisasi: admin bisa lihat semua, user biasa hanya miliknya sendiri
+        $isAdmin = auth()->user()->hasRole('admin') || request()->routeIs('admin.*');
+
+        if (!$isAdmin && $pengajuan->user_id !== auth()->id()) {
+            abort(403, 'Unauthorized action.');
+        }
+
         return view('user.pengajuan.show', compact('pengajuan'));
     }
 }
